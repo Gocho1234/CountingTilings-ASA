@@ -1,3 +1,3 @@
-- GRADE: /15.00
+- GRADE: /20.00
 - Automatic (Mooshak): /17.00
 - Report: /3.00

@@ -6,70 +6,62 @@
  */
 
 #include <iostream>
+#include <map>
 #include <vector>
 
-typedef unsigned long long ull;
-typedef std::vector<std::vector<int>> matrix;
+typedef long long ll;
+typedef std::vector<std::vector<short>> matrix;
 
-ull n, m, value, answer;
+ll n, m;
 matrix rectangle;
-std::vector<ull> max_columns;
+std::vector<ll> max_columns;
+std::map<matrix, ll> dp;
 
-/*
-void print_matrix() {
-    for (ull i = 0; i < n; i++) {
-        for (ull j = 0; j < m; j++) {
-            std::cout << rectangle.at(j).at(i) << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-}
-*/
-
-void tile(int num, ull size, ull column, ull line) {
-    for (ull i = 0; i < size; i++) {
-        for (ull j = 0; j < size; j++) {
+void tile(short num, ll size, ll column, ll line) {
+    for (ll i = 0; i < size; i++) {
+        for (ll j = 0; j < size; j++) {
             rectangle.at(column + i).at(line + j) = num;
         }
     }
 }
 
-void solve(ull column, ull line) {
-    ull max_line = n;
-    bool tiled;
+ll solve(ll column, ll line) {
+    ll max_line = n, answer = 0;
 
     if (line == n) {
         column++;
         line = 0;
     }
 
+    if (dp[rectangle]) {
+        return dp[rectangle];
+    }
+
     if (column == m) {
-        answer++;
-        return;
+        return 1;
     }
 
     if (column >= max_columns.at(line)) {
         return solve(column, line + 1);
     }
 
-    for (ull i = line + 1; i < n; i++) {
+    for (ll i = line + 1; i < n; i++) {
         if (rectangle.at(column).at(i)) {
             max_line = i;
             break;
         }
     }
 
-    for (ull size = 1;
+    for (ll size = 1;
          size <= max_columns.at(line) - column && size <= max_line - line;
          size++) {
-        tiled = false;
+        bool tiled = false;
         if (!rectangle.at(column).at(line)) {
             tile(1, size, column, line);
             tiled = true;
         }
 
-        solve(column, line + 1);
+        answer += solve(column, line + 1);
 
         if (tiled) {
             tile(0, size, column, line);
@@ -77,23 +69,26 @@ void solve(ull column, ull line) {
             break;
         }
     }
+
+    return dp[rectangle] = answer;
 }
 
 int main() {
     bool has_area = false;
     std::cin >> n >> m;
 
-    for (ull i = 0; i < n; i++) {
+    for (ll i = 0; i < n; i++) {
+        ll value = m;
         std::cin >> value;
-        if (value) {
+        if (value > 0) {
             has_area = true;
         }
         max_columns.push_back(value);
     }
 
-    for (ull i = 0; i < m; i++) {
-        std::vector<int> vec = {};
-        for (ull j = 0; j < n; j++) {
+    for (ll i = 0; i < m; i++) {
+        std::vector<short> vec = {};
+        for (ll j = 0; j < n; j++) {
             vec.push_back(0);
         }
         rectangle.push_back(vec);
@@ -104,9 +99,7 @@ int main() {
         return 0;
     }
 
-    solve(0, 0);
-
-    std::cout << answer << std::endl;
+    std::cout << solve(0, 0) << std::endl;
 
     return 0;
 }

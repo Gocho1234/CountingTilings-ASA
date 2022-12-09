@@ -2,7 +2,7 @@
  *      File: main.cpp
  *      Author: Gonçalo Sampaio Bárias (ist1103124)
  *      Group: 13
- *      Description: Counting tilings problem solved in c++.
+ *      Description: Counting tilings problem solved in c++
  */
 
 #include <iostream>
@@ -15,7 +15,18 @@ typedef std::vector<std::vector<short>> matrix;
 ll n, m;
 matrix rectangle;
 std::vector<ll> max_columns;
-std::map<matrix, ll> dp;
+std::map<std::string, ll> dp;
+
+std::string generate_state() {
+    std::string state;
+    for (ll i = 0; i < m; i++) {
+        for (ll j = 0; j < n; j++) {
+            state += std::to_string(rectangle.at(i).at(j));
+        }
+    }
+
+    return state;
+}
 
 void tile(short num, ll size, ll column, ll line) {
     for (ll i = 0; i < size; i++) {
@@ -33,8 +44,8 @@ ll solve(ll column, ll line) {
         line = 0;
     }
 
-    if (dp[rectangle]) {
-        return dp[rectangle];
+    if (dp[generate_state()]) {
+        return dp[generate_state()];
     }
 
     if (column == m) {
@@ -70,7 +81,7 @@ ll solve(ll column, ll line) {
         }
     }
 
-    return dp[rectangle] = answer;
+    return dp[generate_state()] = answer;
 }
 
 int main() {

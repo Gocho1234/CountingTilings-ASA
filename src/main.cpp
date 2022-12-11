@@ -6,76 +6,74 @@
  */
 
 #include <algorithm>
-#include <cstring>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 typedef unsigned long long ull;
 
-ull solve(int *stair);
-int get_top_right(int *stair);
-int get_max_tiling_size(int top_right, int *stair);
-std::string generate_state(int *stair);
+ull solve(std::vector<int> *stair);
+int get_top_right(std::vector<int> *stair);
+int get_max_tiling_size(int top_right, std::vector<int> *stair);
+std::vector<int> copy_vector(std::vector<int> *stair);
+std::string generate_state(std::vector<int> *stair);
 
 int n, m;
 std::unordered_map<std::string, ull> dp;
 
 int main() {
+    std::vector<int> stair;
+
     std::cin >> n >> m;
 
-    int stair[n + 1];
-
-    stair[n] = 0;
     for (int i = 0; i < n; i++) {
         int value = m;
         std::cin >> value;
-        stair[i] = value;
-        stair[n] += value;
+        stair.push_back(value);
     }
 
-    if (n <= 0 || m <= 0 || stair[n - 1] <= 0) {
+    if (n <= 0 || m <= 0 || stair.at(n - 1) <= 0) {
         std::cout << 0 << "\n";
     } else {
-        std::cout << solve(stair) << "\n";
+        std::cout << solve(&stair) << "\n";
     }
 
     return 0;
 }
 
-ull solve(int *stair) {
+ull solve(std::vector<int> *stair) {
     std::string state = generate_state(stair);
 
     if (dp[state]) {
         return dp[state];
     }
 
-    if (!stair[n]) {
-        return dp[state] = 1;
+    for (int i = 0; i < n; i++) {
+        if (stair->at(i)) {
+            break;
+        } else if (i == n - 1) {
+            return dp[state] = 1;
+        }
     }
 
-    // TODO: this needs to be more efficient
     int top_right = get_top_right(stair);
     int tiling_size = get_max_tiling_size(top_right, stair);
-
-    int new_stair[n];
     for (int i = 1; i <= tiling_size; i++) {
-        memcpy(new_stair, stair, (n + 1) * sizeof(int));
+        std::vector<int> new_stair = copy_vector(stair);
         for (int j = 0; j < i; j++) {
-            new_stair[top_right + j] -= i;
-            new_stair[n] -= i;
+            new_stair.at(top_right + j) -= i;
         }
-
-        dp[state] += solve(new_stair);
+        dp[state] += solve(&new_stair);
     }
 
     return dp[state];
 }
 
-int get_top_right(int *stair) {
+int get_top_right(std::vector<int> *stair) {
     int top_right = 0;
 
     for (int i = 1; i < n; i++) {
-        if (stair[top_right] < stair[i]) {
+        if (stair->at(top_right) < stair->at(i)) {
             top_right = i;
         }
     }
@@ -83,26 +81,28 @@ int get_top_right(int *stair) {
     return top_right;
 }
 
-int get_max_tiling_size(int top_right, int *stair) {
+int get_max_tiling_size(int top_right, std::vector<int> *stair) {
     int tiling_size = 1;
 
     for (int i = top_right + 1; i < n; i++) {
-        if (stair[i] == stair[top_right] && stair[i] == stair[i - 1]) {
+        if (stair->at(i) == stair->at(top_right) &&
+            stair->at(i) == stair->at(i - 1)) {
             tiling_size++;
         } else {
             break;
         }
     }
 
-    return std::min(stair[top_right], tiling_size);
+    return std::min(stair->at(top_right), tiling_size);
 }
 
-std::string generate_state(int *stair) {
-    std::string state = "";
+std::vector<int> copy_vector(std::vector<int> *stair) {
+    std::vector<int> new_stair(*stair);
+    return new_stair;
+}
 
-    for (int i = 0; i < n; i++) {
-        state += std::to_string(stair[i]);
-    }
+std::string generate_state(std::vector<int> *stair) {
+    std::string state(stair->begin(), stair->end());
 
     return state;
 }

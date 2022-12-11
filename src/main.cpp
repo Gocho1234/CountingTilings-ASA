@@ -1,116 +1,108 @@
 /*
  *      File: main.cpp
  *      Author: Gonçalo Sampaio Bárias (ist1103124)
- *      Group: 13
- *      Description: Counting tilings problem solved in c++
+ *      Group: al013
+ *      Description: Counting tilings problem solved in c++.
  */
 
+#include <algorithm>
+#include <cstring>
 #include <iostream>
-#include <map>
-#include <vector>
+#include <unordered_map>
 
-typedef long long ll;
-typedef std::vector<std::vector<short>> matrix;
+typedef unsigned long long ull;
 
-ll n, m;
-matrix rectangle;
-std::vector<ll> max_columns;
-std::map<std::string, ll> dp;
+ull solve(int *stair);
+int get_top_right(int *stair);
+int get_max_tiling_size(int top_right, int *stair);
+std::string generate_state(int *stair);
 
-std::string generate_state() {
-    std::string state;
-    for (ll i = 0; i < m; i++) {
-        for (ll j = 0; j < n; j++) {
-            state += std::to_string(rectangle.at(i).at(j));
-        }
+int n, m;
+std::unordered_map<std::string, ull> dp;
+
+int main() {
+    std::cin >> n >> m;
+
+    int stair[n + 1];
+
+    stair[n] = 0;
+    for (int i = 0; i < n; i++) {
+        int value = m;
+        std::cin >> value;
+        stair[i] = value;
+        stair[n] += value;
     }
 
-    return state;
+    if (n <= 0 || m <= 0 || stair[n - 1] <= 0) {
+        std::cout << 0 << "\n";
+    } else {
+        std::cout << solve(stair) << "\n";
+    }
+
+    return 0;
 }
 
-void tile(short num, ll size, ll column, ll line) {
-    for (ll i = 0; i < size; i++) {
-        for (ll j = 0; j < size; j++) {
-            rectangle.at(column + i).at(line + j) = num;
-        }
+ull solve(int *stair) {
+    std::string state = generate_state(stair);
+
+    if (dp[state]) {
+        return dp[state];
     }
+
+    if (!stair[n]) {
+        return dp[state] = 1;
+    }
+
+    // TODO: this needs to be more efficient
+    int top_right = get_top_right(stair);
+    int tiling_size = get_max_tiling_size(top_right, stair);
+
+    int new_stair[n];
+    for (int i = 1; i <= tiling_size; i++) {
+        memcpy(new_stair, stair, (n + 1) * sizeof(int));
+        for (int j = 0; j < i; j++) {
+            new_stair[top_right + j] -= i;
+            new_stair[n] -= i;
+        }
+
+        dp[state] += solve(new_stair);
+    }
+
+    return dp[state];
 }
 
-ll solve(ll column, ll line) {
-    ll max_line = n, answer = 0;
+int get_top_right(int *stair) {
+    int top_right = 0;
 
-    if (line == n) {
-        column++;
-        line = 0;
-    }
-
-    if (dp[generate_state()]) {
-        return dp[generate_state()];
-    }
-
-    if (column == m) {
-        return 1;
-    }
-
-    if (column >= max_columns.at(line)) {
-        return solve(column, line + 1);
-    }
-
-    for (ll i = line + 1; i < n; i++) {
-        if (rectangle.at(column).at(i)) {
-            max_line = i;
-            break;
+    for (int i = 1; i < n; i++) {
+        if (stair[top_right] < stair[i]) {
+            top_right = i;
         }
     }
 
-    for (ll size = 1;
-         size <= max_columns.at(line) - column && size <= max_line - line;
-         size++) {
-        bool tiled = false;
-        if (!rectangle.at(column).at(line)) {
-            tile(1, size, column, line);
-            tiled = true;
-        }
+    return top_right;
+}
 
-        answer += solve(column, line + 1);
+int get_max_tiling_size(int top_right, int *stair) {
+    int tiling_size = 1;
 
-        if (tiled) {
-            tile(0, size, column, line);
+    for (int i = top_right + 1; i < n; i++) {
+        if (stair[i] == stair[top_right] && stair[i] == stair[i - 1]) {
+            tiling_size++;
         } else {
             break;
         }
     }
 
-    return dp[generate_state()] = answer;
+    return std::min(stair[top_right], tiling_size);
 }
 
-int main() {
-    bool has_area = false;
-    std::cin >> n >> m;
+std::string generate_state(int *stair) {
+    std::string state = "";
 
-    for (ll i = 0; i < n; i++) {
-        ll value = m;
-        std::cin >> value;
-        if (value > 0) {
-            has_area = true;
-        }
-        max_columns.push_back(value);
+    for (int i = 0; i < n; i++) {
+        state += std::to_string(stair[i]);
     }
 
-    for (ll i = 0; i < m; i++) {
-        std::vector<short> vec = {};
-        for (ll j = 0; j < n; j++) {
-            vec.push_back(0);
-        }
-        rectangle.push_back(vec);
-    }
-
-    if (n <= 0 || m <= 0 || !has_area) {
-        std::cout << 0 << std::endl;
-        return 0;
-    }
-
-    std::cout << solve(0, 0) << std::endl;
-
-    return 0;
+    return state;
 }

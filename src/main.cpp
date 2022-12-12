@@ -9,83 +9,80 @@
 #include <cstring>
 #include <iostream>
 #include <unordered_map>
-#include <vector>
 
 typedef unsigned long long ull;
 
-struct vector_hasher {
-    int operator()(const std::vector<int> &v) const {
-        int hash = v.size();
-        for (auto &i : v) {
-            hash ^= i + 0x9e3779b9 + (hash << 6) + (hash >> 2);
-        }
-        return hash;
-    }
-};
+#define MAP_INITIAL_SIZE 33554432
 
-ull solve(std::vector<int> &stair);
-int get_top_right(std::vector<int> &stair);
-int get_max_tiling_size(const int top_right, std::vector<int> &stair);
+ull solve(int *stair, const int width);
+int get_top_right(int *stair, const int width);
+int get_max_tiling_size(int *stair, const int width, const int top_right);
+const ull vector_hasher(const int *v);
 
-int n, m;
-std::unordered_map<std::vector<int>, ull, vector_hasher> dp;
+int width, length; // width = n, length = m
+std::unordered_map<ull, ull> dp(MAP_INITIAL_SIZE);
 
 int main() {
-    std::vector<int> stair(n);
+    std::cin >> width >> length;
 
-    std::cin >> n >> m;
+    int stair[width];
 
-    int value = m;
-    for (int i = 0; i < n; i++) {
-        std::cin >> value;
-        if (value > m) {
-            value = m;
+    int max_line = length;
+    for (int i = 0; i < width; i++) {
+        std::cin >> max_line;
+        if (max_line > length) { // if c_i > m then it defaults value to length
+            max_line = length;
         }
-        stair.push_back(value);
+        stair[i] = max_line;
     }
 
-    if (n <= 0 || m <= 0 || stair.at(n - 1) <= 0) {
+    // when the stair doesn't exist we have 0 ways to tile
+    if (width <= 0 || length <= 0 || stair[width - 1] <= 0) {
         std::cout << 0 << "\n";
     } else {
-        std::cout << solve(stair) << "\n";
+        std::cout << solve(stair, width) << "\n";
     }
 
     return 0;
 }
 
-ull solve(std::vector<int> &stair) {
-    if (dp.find(stair) != dp.end()) {
-        return dp.at(stair);
+ull solve(int *stair, const int width) {
+    const ull hash = vector_hasher(stair);
+
+    if (dp.find(hash) != dp.end()) {
+        return dp.at(hash);
     }
 
-    for (int i = 0; i < n; i++) {
-        if (stair.at(i)) {
+    // base case
+    for (int i = 0; i < width; i++) {
+        if (stair[i]) {
             break;
-        } else if (i == n - 1) {
-            return dp[stair] = 1;
+        } else if (i == width - 1) {
+            return dp[hash] = 1;
         }
     }
 
-    int top_right = get_top_right(stair);
-    int tiling_size = get_max_tiling_size(top_right, stair);
+    // gets the corner to remove tiles from and the corresponding max tile size
+    int top_right = get_top_right(stair, width);
+    int tiling_size = get_max_tiling_size(stair, width, top_right);
 
-    std::vector<int> new_stair(n);
+    int new_stair[width];
     for (int i = 1; i <= tiling_size; i++) {
-        memcpy(new_stair.data(), stair.data(), n * sizeof(int));
+        std::memcpy(new_stair, stair, width * sizeof(int));
         for (int j = 0; j < i; j++) {
-            new_stair.at(top_right + j) -= i;
+            new_stair[top_right + j] -= i;
         }
-        dp[stair] += solve(new_stair);
+        dp[hash] += solve(new_stair, width);
     }
 
-    return dp.at(stair);
+    return dp.at(hash);
 }
 
-int get_top_right(std::vector<int> &stair) {
+int get_top_right(int *stair, const int width) {
     int top_right = 0;
 
-    for (int i = 1; i < n; i++) {
-        if (stair.at(top_right) < stair.at(i)) {
+    for (int i = 1; i < width; i++) {
+        if (stair[top_right] < stair[i]) {
             top_right = i;
         }
     }
@@ -93,17 +90,27 @@ int get_top_right(std::vector<int> &stair) {
     return top_right;
 }
 
-int get_max_tiling_size(const int top_right, std::vector<int> &stair) {
+int get_max_tiling_size(int *stair, const int width, const int top_right) {
     int tiling_size = 1;
 
-    for (int i = top_right + 1; i < n; i++) {
-        if (stair.at(i) == stair.at(top_right) &&
-            stair.at(i) == stair.at(i - 1)) {
+    for (int i = top_right + 1; i < width; i++) {
+        if (stair[i] == stair[top_right] && stair[i] == stair[i - 1]) {
             tiling_size++;
         } else {
             break;
         }
     }
 
-    return std::min(stair.at(top_right), tiling_size);
+    return std::min(stair[top_right], tiling_size);
+}
+
+const ull vector_hasher(const int *v) {
+    ull hash = width;
+
+    // takes any array of integers and creates an unique hash
+    for (int i = 0; i < width; i++) {
+        hash ^= v[i] + 0x9e3779b9 + (hash << 6) + (hash >> 2) + (hash << v[i]);
+    }
+
+    return hash;
 }

@@ -9,6 +9,7 @@
 \usepackage{indentfirst}
 \usepackage{float}
 \usepackage{biblatex}
+\usepackage[Symbol]{upgreek}
 
 \graphicspath{ {./} }
 \hypersetup{
@@ -45,7 +46,7 @@
   O algoritmo começa sempre por remover ladrilhos da linha mais acima na coluna da direita do retângulo, isto porque é uma das maneiras que permite manter toda a informação do caminho em escada num só vetor, pois basta atualizar o valor máximo das colunas em cada linha à medida que se removem ladrilhos.
   Para se encontrar a \textbf{posição a partir da qual se remove um ladrilho}, percorre-se o vetor, começando na linha 0, até se achar a linha com maior valor.
   Caso exista mais do que uma linha com o maior valor, tomamos como posição inicial a primeira encontrada.
-  Para saber o \textbf{tamanho máximo do ladrilho} que é possível inserir para a esquerda e para baixo nessa posição, basta contar quantas entradas consecutivas abaixo dessa posição têm o mesmo valor.
+  Para saber o \textbf{tamanho máximo do ladrilho} que é possível inserir para a esquerda e para baixo nessa posição, basta contar quantas entradas consecutivas a partir dessa posição têm o mesmo valor.
   Quando todas as entradas do vetor estiverem a 0 o algoritmo retorna como resposta o valor 1, para indicar que aquela é uma configuração desejável.
   Para guardar os valores dos subproblemas, para que o algoritmo não os tenha de recalcular, é usada uma \textit{tabela de dispersão}.
   Quando as chamadas recursivas do algoritmo terminam, é retornado o valor para a chamada anterior, onde mapeamos na \textit{tabela de dispersão} o valor do subproblema com uma chave que representa o estado do vetor nesse momento.
@@ -66,7 +67,12 @@
     \item A aprensentação do resultado é feita em tempo constante. Logo, $\Theta(1)$.
   \end{itemize}
 
-  Assim, a complexidade global da solução é $N$.
+  O número total de caminhos em escada possíveis num quadrado de lado n é dado pelo número de maneiras de percorrer, do canto superior esquerdo para o canto inferior direito, linhas paralelas no interior do quadrado, separadas de forma unitária.
+  Deste modo, sabemos que o número total de caminhos em escada é dado por $2N \choose N$, pois só podemos percorrer tais linhas para baixo e para a direita.
+  Existe uma aproximação deste resultado, \textit{Stirling's approximation}\cite{enwiki:1126871905}, que é dada por $\frac{2^{2N}}{\sqrt{N\pi}}$.
+  Assim, no melhor caso, um algoritmo que pretende achar todas as maneiras de ladrilhar um quadrado teria esta complexidade temporal, pois estamos a assumir que a operação de obter um novo caminho em escada a partir de um outro seria $O(1)$.
+  Na verdade como o algoritmo proposto faz essa operação em $O(n)$ e não desconstrói o quadrado em caminhos em escada só para baixo e para a direita, também faz caminhos para a esquerda, então sabemos que terá uma complexidade temporal pior, mas da mesma ordem de grandeza que a mencionada.
+  Assim, a complexidade global da solução é exponencial.
 
   \section{Avaliação Experimental dos Resultados}
 
@@ -74,18 +80,15 @@
 
   \begin{figure}[H]
     \centering
-    \includegraphics[width=4in]{report.png}
+    \includegraphics[width=5in]{report.png}
     \caption{Complexidade temporal do problema proposto}
     \label{fig:graphic}
   \end{figure}
 
   De realçar que, por uma questão de simplicidade, na análise experimental, as escadas usadas foram quadrados, ou seja, $N = M$.
-  O gráfico apresentado tem uma escala $N$ no eixo dos $xx$.
-  Os dados revelam uma reta linear, comprovando que a complexidade temporal do problema é, num caso geral, $N$, tal como concluído na análise teórica.
+  Os dados revelam uma reta exponencial, tal como concluído na análise teórica.
 
-  \section{Bibliografia}
-
-  \printbibliography
+  \printbibliography[title={Referência}]
 
 \end{document}
 Footer

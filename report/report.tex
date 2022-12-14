@@ -4,9 +4,10 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{graphicx}
-\usepackage{wrapfig}
 \usepackage{blindtext}
 \usepackage{hyperref}
+\usepackage{indentfirst}
+\usepackage{float}
 \usepackage{biblatex}
 
 \graphicspath{ {./} }
@@ -25,7 +26,7 @@
 \fancyhf{}
 \rhead{Grupo \textbf{al013}}
 \lhead{Relatório Projeto 1 ASA 2022/2023 LEIC-A}
-\cfoot{Gonçalo Bárias (103124)}
+\cfoot{Gonçalo Sampaio Bárias (103124)}
 
 \renewcommand{\footrulewidth}{0.2pt}
 
@@ -35,50 +36,52 @@
 \begin{document}
   \section{Descrição do Problema e da Solução}
 
-  % TODO: Descrição do Problema e da Solução
+  O problema proposto foi o de achar o número de configurações \textbf{distintas} de ladrilhar com quadrados uma área retangular, delimitada por um caminho em escada.
+  O caminho em escada foi representado através de um vetor que guarda os limites máximos de cada degrau, pois representar o retângulo em forma de matriz gastaria demasiada memória e tempo.
+  Assim, cada entrada do vetor contém um valor entre 0 e o comprimento máximo do retângulo.
+
+  Esta solução teve por base uma abordagem em \textbf{programação dinâmica}.
+  Neste caso, os subproblemas considerados são obtidos a partir do problema anterior subtraindo valores a uma ou mais linhas do vetor.
+  O algoritmo começa sempre por remover ladrilhos da linha mais acima na coluna da direita do retângulo, isto porque é uma das maneiras que permite manter toda a informação do caminho em escada num só vetor, pois basta atualizar o valor máximo das colunas em cada linha à medida que se removem ladrilhos.
+  Para se encontrar a \textbf{posição a partir da qual se remove um ladrilho}, percorre-se o vetor, começando na linha 0, até se achar a linha com maior valor.
+  Caso exista mais do que uma linha com o maior valor, tomamos como posição inicial a primeira encontrada.
+  Para saber o \textbf{tamanho máximo do ladrilho} que é possível inserir para a esquerda e para baixo nessa posição, basta contar quantas entradas consecutivas abaixo dessa posição têm o mesmo valor.
+  Quando todas as entradas do vetor estiverem a 0 o algoritmo retorna como resposta o valor 1, para indicar que aquela é uma configuração desejável.
+  Para guardar os valores dos subproblemas, para que o algoritmo não os tenha de recalcular, é usada uma \textit{tabela de dispersão}.
+  Quando as chamadas recursivas do algoritmo terminam, é retornado o valor para a chamada anterior, onde mapeamos na \textit{tabela de dispersão} o valor do subproblema com uma chave que representa o estado do vetor nesse momento.
+  Por fim, o algoritmo retorna a soma de todos os valores retornados pelos subproblemas, apresentando assim a resposta final do problema.
 
   \section{Análise Teórica}
 
-  % TODO: Análise Teórica
-
-  Seja $N$ o número de elementos da sequência 1 e $M$ o número de elementos da sequência 2.
+  Sendo $N$ a largura da escada.
 
   \begin{itemize}
     \setlength{\itemsep}{0pt}
     \item Simples leitura do input, colocando cada elemento num vetor. Logo, $\Theta(N)$.
-    \item Criação de uma lista vazia de stacks é feito em tempo constante, logo $\Theta(1)$.
-    \item Cada elemento da sequência é visitado uma vez, logo $\Theta(N)$.
-    \begin{itemize}
-      \setlength{\itemsep}{0pt}
-      \item A lista de pilhas encontra-se ordenada pelo elemento no topo da pilha, pelo que se pode aplicar o algoritmo \textit{binary search} para determinar em que pilha inserir o elemento. Logo, $O(\log N)$.
-      \item Cada pilha encontra-se também ordenada, pelo que se pode determinar o índice do maior elemento menor que o elemento a inserir também pelo algoritmo \textit{binary search}. Determinar o elemento no topo da pilha é feito em tempo constante. Logo, $O(\log N)$.
-      \item Obter o elemento no topo da pilha é feito em tempo constante, logo a soma à quantidade é $\Theta(1)$.
-      \item Adicionar um elemento à pilha é feito também em tempo constante. Logo, $\Theta(1)$.
-      \item Finalmente, adicionar uma pilha à lista é também em tempo constante. Logo, $\Theta(1)$.
-    \end{itemize}
-    \item A obtenção das soluções após construir a lista de pilhas, assim como a aprensen-tação dos resultados, são feitas em tempo constante. Logo, $\Theta(1)$.
+    \item Para verificar se chegámos às respostas dos subproblemas é necessário, no pior caso, percorrer todas as entradas do vetor até acharmos uma diferente de 0. Logo, $O(N)$.
+    \item Para achar a linha de onde se vai remover o próximo ladrilho, é necessário percorrer sempre todas as entradas do vetor até achar a entrada com valor máximo. Logo, $\Theta(N)$.
+    \item Para achar o tamanho máximo do ladrilho que cabe numa dada posição para a esquerda e para baixo, é necessário percorrer, no pior caso, todas as entradas do vetor na situação em que a posição está na primeira linha e temos todas as entradas com valores iguais. Logo, $O(N)$.
+    \item A função de dispersão utilizada percorre todos os elementos do vetor. Logo, $\Theta(N)$.
+    \item A obtenção dos resultados dos subproblemas a partir da \textit{tabela de dispersão}, bem como a inserção de tais valores na \textit{tabela de dispersão} são feitas no pior caso em tempo linear. Logo, $O(N)$.
+    \item A aprensentação do resultado é feita em tempo constante. Logo, $\Theta(1)$.
   \end{itemize}
 
-  Assim, a complexidade global da solução é $O(N \log N)$.
-
-  Em relação à complexidade espacial, temos $\Theta(N)$, visto que cada elemento da sequência é adicionado à lista de pilhas uma e apenas uma só vez.
+  Assim, a complexidade global da solução é $N$.
 
   \section{Avaliação Experimental dos Resultados}
 
-  % TODO: Avaliação Experimental dos Resultados
+  O programa foi executado, pelo menos 10 vezes para cada caminho em escada recorrendo ao programa \href{https://github.com/sharkdp/hyperfine}{\textit{hyperfine}}.
 
-  O programa foi executado, pelo menos 5 vezes para cada sequência, para ambos os problemas, recorrendo ao programa \href{https://github.com/sharkdp/hyperfine}{\textit{hyperfine}}.
-
-  \begin{wrapfigure}{r}{0.4\textwidth}
+  \begin{figure}[H]
     \centering
-    \includegraphics[width=0.4\textwidth]{report.png}
-  \end{wrapfigure}
+    \includegraphics[width=4in]{report.png}
+    \caption{Complexidade temporal do problema proposto}
+    \label{fig:graphic}
+  \end{figure}
 
-  Para o problema 2, por ser o pior caso e para simplificar a análise, tomou-se sempre $N = M$, ou seja, o mesmo número de elementos para ambas as sequências.
-  Foram sempre utilizados números comuns, visto que esse é o pior caso no problema 2.
-  Foram utilizadas sequências de tamanho entre 10 e 100 000 elementos, 100 para cada ordem de grandeza.
-  O gráfico apresentado à direta tem uma escala $NM$ no eixo dos $xx$.
-  Os dados revelam uma reta linear, comprovando que a complexidade temporal do problema é, num caso geral, $O(NM)$, tal como concluído na análise teórica.
+  De realçar que, por uma questão de simplicidade, na análise experimental, as escadas usadas foram quadrados, ou seja, $N = M$.
+  O gráfico apresentado tem uma escala $N$ no eixo dos $xx$.
+  Os dados revelam uma reta linear, comprovando que a complexidade temporal do problema é, num caso geral, $N$, tal como concluído na análise teórica.
 
   \section{Bibliografia}
 

@@ -46,7 +46,7 @@
   O algoritmo começa sempre por remover ladrilhos da linha mais acima na coluna da direita do retângulo, isto porque é uma das maneiras que permite manter toda a informação do caminho em escada num só vetor, pois basta atualizar o valor máximo das colunas em cada linha à medida que se removem ladrilhos.
   Para se encontrar a \textbf{posição a partir da qual se remove um ladrilho}, percorre-se o vetor, começando na linha 0, até se achar a linha com maior valor.
   Caso exista mais do que uma linha com o maior valor, tomamos como posição inicial a primeira encontrada.
-  Para saber o \textbf{tamanho máximo do ladrilho} que é possível inserir para a esquerda e para baixo nessa posição, basta contar quantas entradas consecutivas a partir dessa posição têm o mesmo valor.
+  Para saber o \textbf{tamanho máximo do ladrilho} que é possível remover para a esquerda e para baixo nessa posição, basta contar quantas entradas consecutivas a partir dessa posição têm o mesmo valor.
   Quando todas as entradas do vetor estiverem a 0 o algoritmo retorna como resposta o valor 1, para indicar que aquela é uma configuração desejável.
   Para guardar os valores dos subproblemas, para que o algoritmo não os tenha de recalcular, é usada uma \textit{tabela de dispersão}.
   Quando as chamadas recursivas do algoritmo terminam, é retornado o valor para a chamada anterior, onde mapeamos na \textit{tabela de dispersão} o valor do subproblema com uma chave que representa o estado do vetor nesse momento.
@@ -64,7 +64,7 @@
     \item Para achar o tamanho máximo do ladrilho que cabe numa dada posição para a esquerda e para baixo, é necessário percorrer, no pior caso, todas as entradas do vetor na situação em que a posição está na primeira linha e temos todas as entradas com valores iguais. Logo, $O(N)$.
     \item A função de dispersão utilizada percorre todos os elementos do vetor. Logo, $\Theta(N)$.
     \item A obtenção dos resultados dos subproblemas a partir da \textit{tabela de dispersão}, bem como a inserção de tais valores na \textit{tabela de dispersão} são feitas no pior caso em tempo linear. Logo, $O(N)$.
-    \item A aprensentação do resultado é feita em tempo constante. Logo, $\Theta(1)$.
+    \item A apresentação do resultado é feita em tempo constante. Logo, $\Theta(1)$.
   \end{itemize}
 
   O número total de caminhos em escada possíveis num quadrado de lado n é dado pelo número de maneiras de percorrer, do canto superior esquerdo para o canto inferior direito, linhas paralelas no interior do quadrado, separadas de forma unitária.
